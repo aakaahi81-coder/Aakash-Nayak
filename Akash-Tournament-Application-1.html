@@ -1,0 +1,392 @@
+<!DOCTYPE html><html lang="hi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Akash Tournament Application</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,rgba(15,17,23,.35),rgba(15,17,23,.92) 70%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 1000' preserveAspectRatio='xMidYMax slice'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%231a0f2e'/%3E%3Cstop offset='.6' stop-color='%23ff5a1f'/%3E%3Cstop offset='1' stop-color='%23ffb347'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='1000' fill='url(%23g)'/%3E%3Ccircle cx='600' cy='300' r='90' fill='%23ffd27a' opacity='.8'/%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.3' stroke-width='3'%3E%3Ccircle cx='400' cy='350' r='140'/%3E%3Ccircle cx='400' cy='350' r='6'/%3E%3Cpath d='M400 180v100M400 420v100M230 350h100M470 350h100'/%3E%3C/g%3E%3Cpath d='M0 760L150 600 260 720 400 540 560 710 680 620 800 740V1000H0z' fill='%23140c24' opacity='.9'/%3E%3Cpath d='M0 880L120 780 250 860 420 740 600 850 720 790 800 860V1000H0z' fill='%230b0614'/%3E%3C/svg%3E") center/cover fixed no-repeat #0f1117;color:#eceef4;font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+#app{max-width:760px;margin:0 auto;padding:14px}
+h1{font-size:20px;margin:4px 0 12px;color:#ff7a1a}
+nav{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto}
+nav button{flex:none}
+button{background:#232838;color:#eceef4;border:1px solid #333a50;border-radius:8px;padding:8px 12px;font:inherit;cursor:pointer}
+button.p,nav button.on{background:#ff7a1a;border-color:#ff7a1a;color:#111;font-weight:600}
+button.d{border-color:#c0392b;color:#ff8a7a}
+.card{background:rgba(24,28,39,.9);border:1px solid #2a3045;border-radius:12px;padding:12px;margin-bottom:12px}
+.row{display:flex;flex-wrap:wrap;gap:6px 14px;color:#a9b0c5;font-size:13px;margin:6px 0}
+.tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;background:#2a3045}
+.ok{background:#1d5c34}.bad{background:#6b2323}.warn{background:#6b5a1d}
+input,select,textarea{width:100%;background:#0f1117;color:#eceef4;border:1px solid #333a50;border-radius:8px;padding:9px;font:inherit;margin:4px 0}
+label{font-size:12px;color:#a9b0c5}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.bar{height:6px;background:#2a3045;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:#ff7a1a}
+.sm{font-size:12px;color:#8a92aa}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:5px 4px;border-bottom:1px solid #2a3045;text-align:left}
+.sc{overflow-x:auto}
+</style></head><body><div id="app"><h1>🔥 Akash Tournament Application</h1><div id="v">Loading…</div></div>
+<script>
+window.addEventListener('error',function(e){var v=document.getElementById('v');if(v&&/^Loading/.test(v.textContent))v.textContent='Error: '+e.message+' (is browser mein app nahi chal paya, Chrome mein kholein)'});
+</script>
+<script>
+/* Standalone mode: claude.ai runtime na ho to data is device/browser ke storage mein rehta hai. */
+(function(){
+ if(window.claude&&typeof window.claude.use==='function')return;
+ var K='ff_local_db',PIN='1234',subs=[],mem={},persist=true;
+ try{localStorage.setItem('_t','1');localStorage.removeItem('_t')}catch(e){persist=false}
+ var S={get:function(k){try{return localStorage.getItem(k)}catch(e){return k in mem?mem[k]:null}},
+  set:function(k,v){try{localStorage.setItem(k,v)}catch(e){mem[k]=String(v)}},
+  del:function(k){try{localStorage.removeItem(k)}catch(e){delete mem[k]}}};
+ function load(){try{return JSON.parse(S.get(K))||{}}catch(e){return {}}}
+ function save(d){S.set(K,JSON.stringify(d))}
+ function fire(){subs.slice().forEach(function(f){f()})}
+ function sub(f){subs.push(f);setTimeout(f,0);return function(){var i=subs.indexOf(f);if(i>=0)subs.splice(i,1)}}
+ function cp(v){return JSON.parse(JSON.stringify(v))}
+ function dsnap(p){var d=load()[p];return {id:p.split('/').pop(),exists:d!==undefined,data:function(){return d===undefined?undefined:cp(d)},metadata:{}}}
+ function doc(p){return {id:p.split('/').pop(),path:p,
+  get:async function(){return dsnap(p)},
+  set:async function(v){var d=load();d[p]=cp(v);save(d);fire()},
+  update:async function(v){var d=load();d[p]=Object.assign({},d[p]||{},cp(v));save(d);fire()},
+  delete:async function(){var d=load();delete d[p];save(d);fire()},
+  onSnapshot:function(fn){return sub(function(){fn(dsnap(p))})}}}
+ function col(c){
+  function qs(){var d=load(),ds=Object.keys(d).filter(function(k){return k.indexOf(c+'/')===0&&k.slice(c.length+1).indexOf('/')<0}).map(dsnap);return {docs:ds,size:ds.length,empty:!ds.length,metadata:{}}}
+  return {doc:function(id){return doc(c+'/'+id)},get:async function(){return qs()},onSnapshot:function(fn){return sub(function(){fn(qs())})}}
+ }
+ var db={doc:doc,collection:col};
+ var uid=S.get('ff_uid');if(!uid){uid='local-'+Math.random().toString(36).slice(2,10);S.set('ff_uid',uid)}
+ var isAdmin=function(){return S.get('ff_admin')==='1'};
+ var user={id:async function(){return uid},me:async function(){return {id:uid}},canEdit:isAdmin,isOwner:isAdmin,can:function(){return isAdmin()}};
+ var downloads={save:async function(o){var b=new Blob([o.data],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=o.filename;document.body.appendChild(a);a.click();a.remove()}};
+ window.claude={use:async function(n){return n==='db'?db:n==='user'?user:n==='downloads'?downloads:null}};
+ window.addEventListener('storage',fire);
+ function ask(){
+  var o=document.createElement('div');
+  o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:20';
+  o.innerHTML='<div style="background:#181c27;padding:16px;border-radius:12px;width:min(300px,90%);color:#eceef4;font:15px system-ui"><b>Admin PIN</b><input id="apin" type="password" inputmode="numeric" placeholder="PIN" style="width:100%;margin:8px 0;padding:9px;border-radius:8px;border:1px solid #333a50;background:#0f1117;color:#eceef4"><div id="aerr" style="color:#ff8a7a;font-size:13px;min-height:18px"></div><button id="aok" style="padding:8px 14px">OK</button> <button id="ano" style="padding:8px 14px">Cancel</button></div>';
+  document.body.appendChild(o);
+  var i=o.querySelector('#apin');i.focus();
+  o.querySelector('#ano').onclick=function(){o.remove()};
+  o.querySelector('#aok').onclick=function(){
+   if(i.value===PIN){S.set('ff_admin','1');location.reload()}else{o.querySelector('#aerr').textContent='Galat PIN'}
+  };
+ }
+ document.addEventListener('DOMContentLoaded',function(){
+  var b=document.createElement('button');
+  b.textContent=isAdmin()?'\ud83d\udd13 Admin logout':'\ud83d\udd10 Admin login (PIN)';
+  b.style.cssText='position:fixed;right:10px;top:calc(8px + env(safe-area-inset-top,0px));z-index:10;padding:8px 12px;border-radius:8px;border:1px solid #ff7a1a;background:#232838;color:#eceef4;font:14px system-ui';
+  b.onclick=function(){
+   if(isAdmin()){S.del('ff_admin');location.reload();return}
+   ask();
+  };
+  document.body.appendChild(b);
+  if(!persist){var n=document.createElement('div');n.textContent='\u26a0 Is preview mein data save nahi hoga. File ko Chrome mein kholein.';n.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:10;background:#6b5a1d;color:#fff;padding:8px;font:13px system-ui;text-align:center';document.body.appendChild(n)}
+ });
+})();
+</script>
+<script>
+let db,me,admin=false,T=[],R=[],P=[],X=[],C={},tab='t',opn=null,msg='',mk=false;const BONUS=10,APP='https://claude.ai/artifact/XCUcmFCYxjHe8itntN8gv9';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const val=id=>($('#'+id)||{}).value||'';
+async function init(){
+  try{
+    const u=await claude.use('user'),d=await claude.use('db');
+    if(!u||!d){$('#v').textContent='Is page ko use karne ke liye sign in zaroori hai.';return}
+    db=d;me=await u.id();admin=u.canEdit();
+    db.collection('tournaments').onSnapshot(s=>{T=s.docs.map(x=>({id:x.id,...x.data()}));sdraw()});
+    db.collection('regs').onSnapshot(s=>{R=s.docs.map(x=>({id:x.id,...x.data()}));sdraw()});
+    db.collection('profiles').onSnapshot(s=>{P=s.docs.map(x=>({id:x.id,...x.data()}));ensureP();sdraw()});
+    db.collection('txns').onSnapshot(s=>{X=s.docs.map(x=>({id:x.id,...x.data()}));sdraw()});
+    db.doc('config/main').onSnapshot(s=>{C=s.data()||{};sdraw()});
+    draw();
+  }catch(e){$('#v').textContent='Error: '+(e.message||e)}
+}
+function cnt(t){return R.filter(r=>r.tid===t.id&&r.status!=='rejected').length}
+function mine(t){return R.find(r=>r.id===t.id+'_'+me)}
+function draw(){
+  const tabs=[['t','Tournaments'],['m','Meri Entries'],['r','Rank & Refer'],['w','🪙 Wallet'],['i','🤖 Ask AI']].concat(admin?[['a','Admin Panel']]:[]);
+  let h='<nav>'+tabs.map(([k,n])=>`<button class="${tab===k?'on':''}" onclick="tab='${k}';opn=null;SH='';draw()">${n}</button>`).join('')+'</nav>';
+  if(msg)h+=`<div class="card">${esc(msg)}${/not_granted|permission|revoked/i.test(msg)?'<div class="sm">Is account ko write access nahi hai. Owner ko page ki sharing mein players ko edit / interact access dena hoga.</div>':''}</div>`;
+  h+=tab==='t'?listT():tab==='m'?myR():tab==='r'?rankP():tab==='w'?walletP():tab==='i'?aiP():adminP();
+  $('#v').innerHTML=h;
+}
+function sorted(){return [...T].sort((a,b)=>(a.start||'').localeCompare(b.start||''))}
+function listT(){
+  const wp=P.find(x=>x.id===me)||{},ws=`<div class="card" style="display:flex;justify-content:space-between;align-items:center"><span>🪙 Wallet: <b>${wp.coins||0}</b> coins</span><button class="p" onclick="tab='w';draw()">➕ Deposit</button></div>`;
+  const nb=C.notice?`<div class="card" style="border-color:#ff7a1a">📢 ${esc(C.notice).replace(/\n/g,'<br>')}</div>`:'';
+  if(!T.length)return ws+nb+'<div class="card">Abhi koi tournament nahi hai.</div>';
+  return ws+nb+sorted().map(t=>{
+    const c=cnt(t),m=mine(t),full=c>=+t.slots,p=Math.min(100,c/(+t.slots||1)*100);
+    let act='';
+    if(t.status==='completed')act='';
+    else if(m)act=`<span class="tag ${m.status==='approved'?'ok':m.status==='rejected'?'bad':'warn'}">${m.status==='approved'?'✅ Joined':'Entry: '+m.status}</span>`;
+    else if(full)act='<span class="tag bad">Slots full</span>';
+    else act=`<button class="p" onclick="opn='${t.id}';SH='';draw()">🎮 Join Room (₹${t.fee})</button>`;
+    let room='';
+    if(m&&m.status==='pending')room='<div class="sm" style="margin-top:8px">⏳ Admin approval ke baad Room ID yahin dikhegi.</div>';else if(m&&m.status==='approved'&&!t.roomId)room='<div class="sm" style="margin-top:8px">✅ Approved. Room ID abhi release nahi hui.</div>';
+    if((admin||(m&&m.status==='approved'))&&t.roomId)room=`<div class="card" style="margin:8px 0 0;border-color:#ff7a1a">Room ID: <b>${esc(t.roomId)}</b> &nbsp; Password: <b>${esc(t.roomPass)}</b></div>`;
+    const win=t.winner?`<div class="row">🏆 ${esc(t.winner)}</div>`:'';
+    const form=opn===t.id?regForm(t):'';
+    return `<div class="card"><b>${esc(t.name)}</b> <span class="tag">${esc(t.mode)}</span> <span class="tag">${esc(t.status)}</span>
+    <div class="row"><span>📅 ${esc((t.start||'').replace('T',' '))}</span><span>Entry: ₹${esc(t.fee)}</span><span>Prize: ₹${esc(t.prize)}</span></div>
+    <div class="bar"><i style="width:${p}%"></i></div><div class="sm">${c}/${esc(t.slots)} slots</div>
+    ${t.rules?`<div class="sm" style="margin-top:6px">${esc(t.rules)}</div>`:''}${win}
+    <div style="margin-top:8px">${act}</div>${room}${form}</div>`}).join('');
+}
+function regFormOld(t){
+  const solo=t.mode==='Solo';
+  return `<div style="margin-top:10px"><label>${solo?'Player':'Team'} name</label><input id="rn">
+  <label>Free Fire IGN (in-game name)</label><input id="ri"><div class="g"><div><label>Free Fire UID</label><input id="ru" inputmode="numeric"></div>
+  <div><label>WhatsApp number</label><input id="rp" inputmode="tel"></div></div>
+  ${+t.fee>0?`<label>Payment UTR (₹${esc(t.fee)} ${t.upi?'→ '+esc(t.upi):''}) — khali chhodne par Wallet coins se pay hoga</label><input id="rt">`:''}
+  ${+t.fee>0?shotBox():''}<button class="p" onclick="doReg('${t.id}')">Submit</button> <button onclick="opn=null;draw()">Cancel</button></div>`;
+}
+async function doRegOld(tid){
+  const t=T.find(x=>x.id===tid);if(!t)return;
+  const r={tid,uid:me,team:val('rn').trim(),ign:val('ri').trim(),ffuid:val('ru').trim(),phone:val('rp').trim(),utr:val('rt').trim(),shot:SH,status:'pending',at:Date.now()};
+  if(!r.team||!r.ign||!/^\d{6,14}$/.test(r.ffuid)||!/^\d{10}$/.test(r.phone.replace(/\D/g,'').slice(-10))){msg='Sab fields sahi bharein (UID 6-14 digits, phone 10 digits).';draw();return}
+  const pf=P.find(x=>x.id===me);let usedCoins=false;
+  if(+t.fee>0&&!r.utr){if(pf&&(pf.coins||0)>=+t.fee){usedCoins=true;r.utr='COINS'}else{msg='Payment UTR daalein, ya Wallet mein coins add karein.';draw();return}}
+  if(cnt(t)>=+t.slots){msg='Slots full ho gaye.';draw();return}
+  try{await db.doc('regs/'+tid+'_'+me).set(r);if(usedCoins)await db.doc('profiles/'+me).update({coins:pf.coins-(+t.fee)});const pp=P.find(x=>x.id===me);if(pp&&pp.name==='Player')await db.doc('profiles/'+me).update({name:r.ign});msg='Registration submit ho gaya! Admin approval ka wait karein.';opn=null}catch(e){msg='Failed: '+(e.message||e)}
+  draw();
+}
+function myR(){
+  const l=R.filter(r=>r.uid===me);
+  if(!l.length)return '<div class="card">Aapne abhi tak koi registration nahi kiya.</div>';
+  return l.map(r=>{const t=T.find(x=>x.id===r.tid)||{};
+    return `<div class="card"><b>${esc(t.name||'(deleted)')}</b> <span class="tag ${r.status==='approved'?'ok':r.status==='rejected'?'bad':'warn'}">${r.status}</span>
+    <div class="row"><span>${esc(r.team)}</span><span>${esc(r.ign)}</span><span>UID ${esc(r.ffuid)}</span></div>
+    ${r.status==='approved'&&t.roomId?`<div class="card" style="margin:8px 0;border-color:#ff7a1a">Room ID: <b>${esc(t.roomId)}</b> &nbsp; Password: <b>${esc(t.roomPass)}</b></div>`:''}<button class="d" onclick="delReg('${r.id}')">Cancel entry</button></div>`}).join('');
+}
+async function delReg(id){try{await db.doc('regs/'+id).delete()}catch(e){msg=e.message}draw()}
+/* ---------- Admin ---------- */
+function adminP(){
+  let h=adminW()+`<div class="card"><b>Naya tournament</b><label>Naam</label><input id="tn"><div class="g">
+  <div><label>Mode</label><select id="tm"><option>Solo</option><option>Duo</option><option>Squad</option></select></div>
+  <div><label>Start (date &amp; time)</label><input id="ts" type="datetime-local"></div>
+  <div><label>Entry fee ₹</label><input id="tf" type="number" value="0"></div>
+  <div><label>Prize pool ₹</label><input id="tp" type="number" value="0"></div>
+  <div><label>Total slots</label><input id="tl" type="number" value="48"></div>
+  <div><label>Aapka UPI ID</label><input id="tu"></div></div>
+  <label>Rules</label><textarea id="tr" rows="2"></textarea><button class="p" onclick="addT()">Create</button> <button onclick="genRules()">✨ AI se rules likho</button></div>`;
+  h+=sorted().map(t=>{
+    const rs=R.filter(r=>r.tid===t.id).sort((a,b)=>a.at-b.at);
+    return `<div class="card"><b>${esc(t.name)}</b> <span class="tag">${cnt(t)}/${esc(t.slots)}</span>
+    <div class="g"><div><label>Status</label><select id="st${t.id}">${['upcoming','live','completed'].map(s=>`<option ${t.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div><label>Room ID</label><input id="ri${t.id}" value="${esc(t.roomId)}"></div>
+    <div><label>Room password</label><input id="rp${t.id}" value="${esc(t.roomPass)}"></div>
+    <div><label>Winner / result</label><input id="wn${t.id}" value="${esc(t.winner)}"></div></div>
+    <button class="p" onclick="saveT('${t.id}')">Save</button> <button onclick="csv('${t.id}')">CSV</button> <button class="d" onclick="delT('${t.id}')">Delete</button>
+    <div class="sc" style="margin-top:8px"><table><tr><th>Team</th><th>IGN / UID</th><th>Phone</th><th>UTR</th><th></th></tr>
+    ${rs.map(r=>`<tr><td>${esc(r.team)}</td><td>${esc(r.ign)}<br>${esc(r.ffuid)}</td><td>${esc(r.phone)}</td><td>${esc(r.utr)}${utrWarn(r.utr,r.id)}${thumb(r)}</td>
+    <td>${r.status==='approved'?'<span class="tag ok">ok</span>':`<button onclick="setR('${r.id}','approved')">✔</button>`}
+    <button onclick="setR('${r.id}','rejected')">✖</button><br><input id="pz${r.id}" type="number" placeholder="₹ prize" style="width:84px"><button onclick="award('${r.id}')">+</button></td></tr>`).join('')||'<tr><td colspan=5 class="sm">Koi entry nahi</td></tr>'}</table></div></div>`}).join('');
+  return h;
+}
+async function addT(){
+  const t={name:val('tn').trim(),mode:val('tm'),start:val('ts'),fee:+val('tf')||0,prize:+val('tp')||0,slots:+val('tl')||0,upi:val('tu').trim(),rules:val('tr').trim(),status:'upcoming',roomId:'',roomPass:'',winner:''};
+  if(!t.name||!t.slots){msg='Naam aur slots zaroori hain.';draw();return}
+  try{await db.doc('tournaments/t'+Date.now()).set(t);msg='Tournament ban gaya.'}catch(e){msg='Failed: '+(e.message||e)}draw();
+}
+async function saveT(id){
+  try{await db.doc('tournaments/'+id).update({status:val('st'+id),roomId:val('ri'+id),roomPass:val('rp'+id),winner:val('wn'+id)});msg='Saved.'}catch(e){msg='Failed: '+(e.message||e)}draw();
+}
+async function delT(id){
+  if(!confirm('Tournament aur uski sab entries delete karein?'))return;
+  try{for(const r of R.filter(r=>r.tid===id))await db.doc('regs/'+r.id).delete();await db.doc('tournaments/'+id).delete()}catch(e){msg=e.message}draw();
+}
+async function setR(id,s){
+  try{
+    const r=R.find(x=>x.id===id);
+    await db.doc('regs/'+id).update({status:s});
+    const p=r&&P.find(x=>x.id===r.uid);
+    if(s==='rejected'&&r&&r.utr==='COINS'&&!r.refunded&&p){const f=+((T.find(x=>x.id===r.tid)||{}).fee||0);await db.doc('profiles/'+p.id).update({coins:(p.coins||0)+f});await db.doc('regs/'+id).update({refunded:true})}
+    if(s==='approved'&&p&&p.refBy&&!p.refPaid){
+      const q=P.find(x=>x.id===p.refBy);
+      if(q){await db.doc('profiles/'+q.id).update({refEarn:(q.refEarn||0)+BONUS,refs:(q.refs||0)+1,coins:(q.coins||0)+BONUS});await db.doc('profiles/'+p.id).update({refPaid:true})}
+    }
+  }catch(e){msg=e.message;draw()}
+}
+async function award(id){
+  const r=R.find(x=>x.id===id),a=+val('pz'+id),p=r&&P.find(x=>x.id===r.uid);
+  if(!p||!a){msg='Amount daalein.';draw();return}
+  try{await db.doc('profiles/'+p.id).update({earn:(p.earn||0)+a,coins:(p.coins||0)+a});msg='₹'+a+' prize add: '+p.name}catch(e){msg=e.message}draw();
+}
+async function ensureP(){
+  if(mk||P.find(x=>x.id===me))return;mk=true;
+  try{
+    const s=await db.doc('profiles/'+me).get();if(s.exists)return;
+    const code=Math.random().toString(36).slice(2,8).toUpperCase();
+    await db.doc('profiles/'+me).set({name:'Player',code,refBy:'',refPaid:false,earn:0,refEarn:0,refs:0,at:Date.now()});
+  }catch(e){mk=false}
+}
+async function saveName(){
+  const n=val('pn').trim().slice(0,24);if(!n)return;
+  try{await db.doc('profiles/'+me).update({name:n});msg='Naam save ho gaya.'}catch(e){msg=e.message}draw();
+}
+async function useCode(){
+  const c=val('pc').trim().toUpperCase(),q=P.find(x=>x.code===c);
+  if(!q||q.id===me){msg='Galat referral code.';draw();return}
+  try{await db.doc('profiles/'+me).update({refBy:q.id});msg='Referral code lag gaya: '+q.name}catch(e){msg=e.message}draw();
+}
+function rankP(){
+  const p=P.find(x=>x.id===me);if(!p)return '<div class="card">Profile ban raha hai…</div>';
+  const tot=x=>(x.earn||0)+(x.refEarn||0);
+  const top=[...P].sort((a,b)=>tot(b)-tot(a)).slice(0,25);
+  const rank=[...P].sort((a,b)=>tot(b)-tot(a)).findIndex(x=>x.id===me)+1;
+  const share=encodeURIComponent('Free Fire tournament khelo! Mera referral code: '+p.code+' '+APP);
+  let h=`<div class="card"><b>Mera Profile</b> <span class="tag">Rank #${rank}</span>
+  <div class="row"><span>💰 Total: ₹${tot(p)}</span><span>🏆 Prize: ₹${p.earn||0}</span><span>🤝 Referral: ₹${p.refEarn||0} (${p.refs||0} dost)</span></div>
+  <label>Display name</label><div style="display:flex;gap:6px"><input id="pn" value="${esc(p.name)}"><button onclick="saveName()">Save</button></div></div>
+  <div class="card"><b>Refer &amp; Earn</b><div class="sm">Dost jab apni pehli entry approve karwata hai, aapko ₹${BONUS} milte hain.</div>
+  <div style="font-size:22px;letter-spacing:3px;margin:8px 0;color:#ff7a1a"><b>${esc(p.code)}</b></div>
+  <a href="https://wa.me/?text=${share}" target="_blank" rel="noopener"><button class="p">WhatsApp pe share karein</button></a>
+  ${p.refBy?`<div class="sm" style="margin-top:8px">Aapko refer kiya: ${esc((P.find(x=>x.id===p.refBy)||{}).name||'')}</div>`:`<label style="margin-top:8px;display:block">Kisi ka referral code hai?</label><div style="display:flex;gap:6px"><input id="pc" placeholder="CODE"><button onclick="useCode()">Apply</button></div>`}</div>
+  <div class="card"><b>🏆 Leaderboard (total earning)</b><table><tr><th>#</th><th>Player</th><th>Prize</th><th>Refer</th><th>Total</th></tr>`;
+  h+=top.map((x,i)=>`<tr${x.id===me?' style="color:#ff7a1a"':''}><td>${['🥇','🥈','🥉'][i]||i+1}</td><td>${esc(x.name)}</td><td>₹${x.earn||0}</td><td>₹${x.refEarn||0}</td><td><b>₹${tot(x)}</b></td></tr>`).join('');
+  return h+'</table></div>';
+}
+let chat=[],busy=false;
+function aiP(){
+  return `<div class="card"><b>🤖 Ask AI</b><div class="sm">Free Fire tips, tournament rules ya is app ke baare mein kuch bhi poochein.</div>
+  <div style="margin:8px 0">${chat.map(m=>`<div style="margin:6px 0;${m.role==='user'?'text-align:right;color:#ff7a1a':''}">${esc(m.content).replace(/\n/g,'<br>')}</div>`).join('')}${busy?'<div class="sm">Soch raha hoon…</div>':''}</div>
+  <div style="margin-bottom:8px">${['Room ID kab milegi?','Withdraw kaise karein?','Referral kaise kaam karta hai?','Meri entry ka kya status hai?'].map(q=>`<button style="margin:0 6px 6px 0" onclick="askAI('${q}')">${q}</button>`).join('')}</div><div style="display:flex;gap:6px"><input id="aq" placeholder="Apna sawal likhein"><button class="p" onclick="askAI()">Send</button></div></div>`;
+}
+async function askAI(q0){
+  const q=(q0||val('aq')).trim();if(!q||busy)return;
+  chat.push({role:'user',content:q});busy=true;draw();
+  try{
+    const s=await claude.use('sample');
+    if(!s)throw {code:'none'};
+    const ctx='Tum ek Free Fire tournament app ke helper ho. Hinglish mein chhota, seedha jawab do. Tournaments abhi: '+(T.map(t=>t.name+' ('+t.mode+', fee Rs '+t.fee+', prize Rs '+t.prize+', '+t.status+')').join('; ')||'koi nahi')+'. App: Wallet mein deposit/withdraw (min Rs '+MINW+'), referral par Rs '+BONUS+', entry admin approve karta hai. Is player ki entries: '+(R.filter(r=>r.uid===me).map(r=>{const t=T.find(x=>x.id===r.tid)||{};return (t.name||'?')+' status '+r.status+', room details '+(t.roomId?'release ho chuki hain (approved entry par Tournaments tab mein dikhti hain)':'abhi release nahi hui')}).join('; ')||'koi nahi')+'. Payment ya jeetne ki guarantee mat do. Room ID/password khud kabhi mat batao.';
+    const r=await s(ctx+'\n\nBaatcheet:\n'+chat.map(m=>m.role+': '+m.content).join('\n'),{modelTier:'quick',cache:false});
+    chat.push({role:'assistant',content:r.text});
+  }catch(e){chat.push({role:'assistant',content:'AI abhi available nahi hai ya aapne permission nahi di.'})}
+  busy=false;draw();
+}
+function utrWarn(u,id){
+  if(!u||u==='COINS')return '';
+  const w=[];
+  if(!/^\d{12}$/.test(u))w.push('UTR 12 digit ka nahi hai');
+  if(X.some(x=>x.id!==id&&x.type==='deposit'&&x.ref===u)||R.some(r=>r.id!==id&&r.utr===u))w.push('Ye UTR pehle bhi use hua');
+  return w.length?`<div style="color:#ffb347;font-size:12px">⚠ ${w.join(', ')}</div>`:'<div style="color:#6fd28a;font-size:12px">✓ format theek</div>';
+}
+async function genRules(){
+  try{
+    const s=await claude.use('sample');if(!s)throw 0;
+    const r=await s('Free Fire custom room tournament ke liye 6-7 chhote, saaf rules Hinglish mein likho (numbered, ek line each). Naam: '+(val('tn')||'Tournament')+', mode: '+val('tm')+', entry fee Rs '+val('tf')+', prize Rs '+val('tp')+', slots '+val('tl')+'. Sirf rules do, koi intro nahi. Cheating/hack par ban aur room ID kisi se share na karna zaroor shamil karo.',{modelTier:'quick'});
+    $('#tr').value=r.text.trim();
+  }catch(e){$('#tr').placeholder='AI abhi available nahi hai.'}
+}
+async function genNotice(){
+  const ts=T.filter(t=>t.status!=='completed').map(t=>t.name+' ('+t.mode+', '+(t.start||'').replace('T',' ')+', fee Rs '+t.fee+', prize Rs '+t.prize+', '+(t.slots-cnt(t))+' slots bache)').join('; ');
+  try{
+    const s=await claude.use('sample');if(!s)throw 0;
+    const r=await s('Free Fire tournament app ke players ke liye 2-3 line ka josh wala announcement Hinglish mein emojis ke saath likho. Tournaments: '+(ts||'jaldi aa rahe hain')+'. Sirf announcement do.',{modelTier:'quick',cache:false});
+    $('#nt').value=r.text.trim();
+  }catch(e){$('#nt').placeholder='AI abhi available nahi hai.'}
+}
+async function saveNotice(){try{await db.doc('config/main').set({...C,notice:val('nt').trim()});msg='Announcement save ho gaya.'}catch(e){msg=e.message}draw()}
+let SH='',lock=false,st;
+function sdraw(){const a=document.activeElement;if(lock||(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))){clearTimeout(st);st=setTimeout(sdraw,2000);return}draw()}
+function qrSrc(){return C.qr?(String(C.qr).startsWith('data:')?C.qr:'/_blob/'+C.qr):''}
+function shrink(f,max,q,cb){
+  const fr=new FileReader();
+  fr.onerror=()=>cb(null);
+  fr.onload=()=>{const im=new Image();im.onerror=()=>cb(null);
+    im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);const d=c.toDataURL('image/jpeg',q);cb(d.length>220000?null:d)};
+    im.src=fr.result};
+  fr.readAsDataURL(f);
+}
+function shotBox(){return `<label style="display:block;border:2px dashed #ff7a1a;border-radius:10px;padding:10px;text-align:center;margin:8px 0;cursor:pointer"><span id="shm">📷 Payment screenshot add karein (tap here)</span><input type="file" accept="image/*" style="display:none" onclick="lock=true;setTimeout(()=>lock=false,60000)" onchange="pick(this.files[0])"></label>`}
+function pick(f){
+  lock=false;if(!f)return;
+  const e=$('#shm');if(e)e.textContent='Screenshot ho raha hai…';
+  shrink(f,800,.55,d=>{SH=d||'';const e2=$('#shm');if(e2)e2.textContent=d?'✓ Screenshot lag gaya':'Screenshot nahi lag paya (bahut bada ya khuli nahi), dusra try karein'});
+}
+function thumb(x){return x.shot?`<img src="${esc(x.shot)}" onclick="zoom(this.src)" style="width:52px;margin-top:4px;border-radius:4px;cursor:pointer;display:block">`:''}
+function zoom(s){const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9';d.onclick=()=>d.remove();const i=new Image();i.src=s;i.style.cssText='max-width:95%;max-height:95%';d.appendChild(i);document.body.appendChild(d)}
+function upQr(f){
+  lock=false;if(!f)return;
+  shrink(f,720,.85,async d=>{
+    if(!d){msg='QR image load nahi hui ya bahut badi hai. Screenshot crop karke try karein.';draw();return}
+    try{await db.doc('config/main').set({...C,qr:d});msg='QR code lag gaya.'}catch(e){msg='QR save failed: '+(e.code||'')+' '+(e.message||e)}draw();
+  });
+}
+function regForm(t){
+  const p=P.find(x=>x.id===me)||{},fee=+t.fee||0,bal=p.coins||0,need=fee>bal,solo=t.mode==='Solo';
+  const top=`<div class="card" style="margin:0 0 8px">Entry fee: <b>₹${fee}</b> &nbsp; Wallet: <b>🪙 ${bal}</b>${need?`<div style="color:#ffb347;margin-top:6px">⚠ ₹${fee-bal} aur coins chahiye. Pehle deposit karein.</div><button class="p" style="margin-top:6px" onclick="tab='w';opn=null;draw()">➕ Deposit karein</button>`:''}</div>`;
+  if(need)return `<div style="margin-top:10px">${top}<button onclick="opn=null;draw()">Band karein</button></div>`;
+  return `<div style="margin-top:10px">${top}<label>${solo?'Player':'Team'} name</label><input id="rn" value="${esc(p.team)}">
+  <label>Free Fire IGN (in-game name)</label><input id="ri" value="${esc(p.ign)}">
+  <div class="g"><div><label>Free Fire UID</label><input id="ru" inputmode="numeric" value="${esc(p.ffuid)}"></div><div><label>WhatsApp number</label><input id="rp" inputmode="tel" value="${esc(p.phone)}"></div></div>
+  <button class="p" onclick="doReg('${t.id}')">✅ Join Room${fee?' (₹'+fee+' coins se)':''}</button> <button onclick="opn=null;draw()">Cancel</button></div>`;
+}
+async function doReg(tid){
+  const t=T.find(x=>x.id===tid),p=P.find(x=>x.id===me);if(!t||!p)return;
+  const fee=+t.fee||0;
+  const r={tid,uid:me,team:val('rn').trim(),ign:val('ri').trim(),ffuid:val('ru').trim(),phone:val('rp').trim(),utr:fee>0?'COINS':'',shot:'',status:'approved',at:Date.now()};
+  if(!r.team||!r.ign||!/^\d{6,14}$/.test(r.ffuid)||r.phone.replace(/\D/g,'').length<10){msg='Sab fields sahi bharein (UID 6-14 digits, phone 10 digits).';draw();return}
+  if(mine(t)){msg='Aap pehle se join kar chuke hain.';draw();return}
+  if(cnt(t)>=+t.slots){msg='Slots full ho gaye.';draw();return}
+  if((p.coins||0)<fee){msg='Coins kam hain. Pehle Wallet mein deposit karein.';draw();return}
+  try{
+    await db.doc('regs/'+tid+'_'+me).set(r);
+    await db.doc('profiles/'+me).update({coins:(p.coins||0)-fee,team:r.team,ign:r.ign,ffuid:r.ffuid,phone:r.phone,...(p.name==='Player'?{name:r.ign}:{})});
+    if(p.refBy&&!p.refPaid){const q=P.find(x=>x.id===p.refBy);if(q){await db.doc('profiles/'+q.id).update({refEarn:(q.refEarn||0)+BONUS,refs:(q.refs||0)+1,coins:(q.coins||0)+BONUS});await db.doc('profiles/'+me).update({refPaid:true})}}
+    msg='🎉 Room join ho gaya! Neeche Room ID aur password dekhein.';opn=null;
+  }catch(e){msg='Join nahi hua: '+(e.code||'')+' '+(e.message||e)}
+  draw();
+}
+const MINW=50;
+function walletP(){
+  const p=P.find(x=>x.id===me);if(!p)return '<div class="card">Profile ban raha hai…</div>';
+  const my=X.filter(x=>x.uid===me).sort((a,b)=>b.at-a.at);
+  return `<div class="card"><div class="sm">Wallet balance</div><div style="font-size:30px;color:#ff7a1a"><b>🪙 ${p.coins||0}</b></div><div class="sm">1 coin = ₹1. Prize aur referral ke coins yahin jud jaate hain; entry fee bhi coins se de sakte hain.</div></div>
+  <div class="card"><b>➕ Deposit</b>${C.upi?`<div class="sm">Is UPI par pay karein: <b>${esc(C.upi)}</b></div>`:'<div class="sm">Admin ne abhi UPI ID set nahi ki.</div>'}${C.qr?`<div style="text-align:center;margin:8px 0"><img src="${esc(qrSrc())}" onclick="this.style.maxWidth=this.style.maxWidth==='100%'?'220px':'100%'" style="max-width:220px;width:100%;background:#fff;padding:6px;border-radius:10px"><div class="sm">Tap QR to enlarge. Scan and pay, then enter the UTR below</div></div>`:''}
+  <div class="g"><div><label>Amount ₹</label><input id="da" type="number"></div><div><label>UTR / transaction ID</label><input id="du"></div></div>${shotBox()}<button class="p" onclick="reqTx('deposit')">Deposit request bhejein</button></div>
+  <div class="card"><b>➖ Withdrawal</b><div class="sm">Minimum ₹${MINW}. Request karte hi coins hold ho jaate hain.</div>
+  <div class="g"><div><label>Amount ₹</label><input id="wa" type="number"></div><div><label>Aapki UPI ID</label><input id="wu"></div></div><button class="p" onclick="reqTx('withdraw')">Withdraw request bhejein</button></div>
+  <div class="card"><b>History</b><table><tr><th>Type</th><th>₹</th><th>Status</th></tr>${my.map(x=>`<tr><td>${x.type==='deposit'?'➕ Deposit':'➖ Withdraw'}</td><td>${x.amt}</td><td><span class="tag ${x.status==='approved'?'ok':x.status==='rejected'?'bad':'warn'}">${x.status}</span></td></tr>`).join('')||'<tr><td colspan=3 class="sm">Abhi kuch nahi</td></tr>'}</table></div>`;
+}
+async function reqTx(type){
+  const p=P.find(x=>x.id===me),w=type==='deposit';if(!p)return;
+  const a=Math.floor(+val(w?'da':'wa')),ref=val(w?'du':'wu').trim();
+  if(!(a>0)||!ref){msg=w?'Amount aur UTR daalein.':'Amount aur UPI ID daalein.';draw();return}
+  if(!w&&(a<MINW||a>(p.coins||0))){msg='Withdraw: minimum ₹'+MINW+' aur balance se zyada nahi.';draw();return}
+  try{
+    if(!w)await db.doc('profiles/'+me).update({coins:(p.coins||0)-a});
+    await db.doc('txns/x'+Date.now()+'_'+me).set({uid:me,name:p.name,type,amt:a,ref,shot:w?SH:'',status:'pending',at:Date.now()});
+    SH='';msg='Request bhej di gayi. Admin approval ka wait karein.';
+  }catch(e){msg='Failed: '+(e.message||e)}draw();
+}
+function adminW(){
+  const pend=X.filter(x=>x.status==='pending').sort((a,b)=>a.at-b.at);
+  return `<div class="card"><b>📢 Announcement (players ko top par dikhega)</b><textarea id="nt" rows="3">${esc(C.notice)}</textarea><button onclick="genNotice()">✨ AI se likho</button> <button class="p" onclick="saveNotice()">Save</button></div><div class="card"><b>Wallet settings</b><label>Deposit UPI ID (players ko dikhegi)</label><div style="display:flex;gap:6px"><input id="cu" value="${esc(C.upi)}"><button onclick="saveUpi()">Save</button></div><label style="margin-top:8px;display:block">Payment QR code (image)</label><label style="display:block;margin-top:6px;border:2px dashed #ff7a1a;border-radius:12px;padding:14px;text-align:center;cursor:pointer">${C.qr?`<img src="${esc(qrSrc())}" style="max-width:180px;background:#fff;padding:6px;border-radius:8px"><div class="sm">Tap here to change QR</div>`:'<div style="font-size:30px">📷</div><div>Tap here to add your QR code image</div>'}<input type="file" accept="image/*" style="display:none" onclick="lock=true;setTimeout(()=>lock=false,60000)" onchange="upQr(this.files[0])"></label></div>
+  <div class="card"><b>Pending deposit / withdraw (${pend.length})</b><div class="sc"><table><tr><th>Player</th><th>Type</th><th>₹</th><th>UTR/UPI</th><th></th></tr>${pend.map(x=>`<tr><td>${esc(x.name)}</td><td>${x.type}</td><td>${x.amt}</td><td>${esc(x.ref)}${x.type==='deposit'?utrWarn(x.ref,x.id):''}${thumb(x)}</td><td><button onclick="decide('${x.id}',true)">✔</button><button onclick="decide('${x.id}',false)">✖</button></td></tr>`).join('')||'<tr><td colspan=5 class="sm">Kuch pending nahi</td></tr>'}</table></div><div class="sm">Withdraw approve karne se pehle us UPI par paise khud bhejein. Deposit approve hone par coins add ho jaate hain.</div></div>`;
+}
+async function decide(id,ok){
+  const x=X.find(v=>v.id===id),p=x&&P.find(v=>v.id===x.uid);if(!x||!p||x.status!=='pending')return;
+  try{
+    await db.doc('txns/'+id).update({status:ok?'approved':'rejected'});
+    if(x.type==='deposit'&&ok)await db.doc('profiles/'+p.id).update({coins:(p.coins||0)+x.amt});
+    if(x.type==='withdraw'&&!ok)await db.doc('profiles/'+p.id).update({coins:(p.coins||0)+x.amt});
+  }catch(e){msg=e.message}draw();
+}
+async function upQrOld(f){
+  if(!f)return;
+  try{
+    const a=await claude.use('assets');if(!a){msg='Upload sirf owner/admin kar sakta hai.';draw();return}
+    const r=await a.upload(f);await db.doc('config/main').set({...C,qr:r.id});msg='QR code lag gaya.';
+  }catch(e){msg='Upload failed: '+(e.message||e)}draw();
+}
+async function saveUpi(){try{await db.doc('config/main').set({...C,upi:val('cu').trim()});msg='UPI ID save ho gayi.'}catch(e){msg=e.message}draw()}
+async function csv(id){
+  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const rows=[['team','ign','ffuid','phone','utr','status']].concat(R.filter(r=>r.tid===id).map(r=>[r.team,r.ign,r.ffuid,r.phone,r.utr,r.status]));
+  try{const d=await claude.use('downloads');if(d)await d.save({filename:'registrations.csv',data:rows.map(r=>r.map(q).join(',')).join('\n')})}catch(e){}
+}
+init();
+</script></body></html>
